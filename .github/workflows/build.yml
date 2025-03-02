@@ -30,7 +30,7 @@ jobs:
         pyinstaller --onefile notify.py
 
     - name: Archive build artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: notify-build
         path: natter-extends/dist/
