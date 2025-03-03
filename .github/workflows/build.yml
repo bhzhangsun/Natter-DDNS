@@ -23,11 +23,12 @@ jobs:
         cd natter-extends
         python -m pip install --upgrade pip
         pip install -r requirements.txt
+        pip install nuitka
 
-    - name: Build with PyInstaller
+    - name: Build with Nuitka
       run: |
         cd natter-extends
-        pyinstaller --onefile notify.py
+        nuitka --standalone --onefile notify.py
 
     - name: Archive build artifacts
       uses: actions/upload-artifact@v4

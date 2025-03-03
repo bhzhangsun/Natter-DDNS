@@ -1,3 +1,2 @@
 alibabacloud_alidns20150109==3.5.7
 python-dotenv>=1.0.0
-pyinstaller>=5.0
