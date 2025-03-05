@@ -29,7 +29,7 @@ jobs:
       run: |
         cd natter-extends
         mkdir -p dist
-        nuitka --standalone --onefile --output-dir=dist --jobs=4 --disable-console --lto notify.py
+        nuitka --standalone --onefile --output-dir=dist --jobs=4 --disable-console --lto=yes notify.py
 
     - name: Archive build artifacts
       uses: actions/upload-artifact@v4
