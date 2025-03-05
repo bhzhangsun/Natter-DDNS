@@ -28,7 +28,8 @@ jobs:
     - name: Build with Nuitka
       run: |
         cd natter-extends
-        nuitka --standalone --onefile notify.py
+        mkdir -p dist
+        nuitka --standalone --onefile --output-dir=dist notify.py
 
     - name: Archive build artifacts
       uses: actions/upload-artifact@v4

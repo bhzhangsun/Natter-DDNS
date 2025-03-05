@@ -47,18 +47,45 @@ class Sample:
         args: List[str],
     ) -> None:
         client = Sample.create_client()
-        add_custom_line_request = alidns_20150109_models.AddCustomLineRequest(
-            domain_name=os.environ['NATTER_DNS_DOMAIN'],
-            line_name=args[3]
+        domain = os.environ['NATTER_DNS_DOMAIN']
+        record_type = 'A'
+        rr = os.environ['NATTER_DNS_DOMAIN_PREFIX']  # 域名前缀
+        value = args[2]  # IP地址
+        
+        # 1. 查询现有记录
+        describe_request = alidns_20150109_models.DescribeDomainRecordsRequest(
+            domain_name=domain,
+            rrkey_word=rr,
+            type=record_type
         )
         try:
-            # 复制代码运行请自行打印 API 的返回值
-            client.add_custom_line_with_options(add_custom_line_request, util_models.RuntimeOptions())
+            response = client.describe_domain_records_with_options(describe_request, util_models.RuntimeOptions())
+            records = response.body.domain_records.record
+            
+            if records:  # 如果记录存在
+                # 2. 更新现有记录
+                update_request = alidns_20150109_models.UpdateDomainRecordRequest(
+                    record_id=records[0].record_id,
+                    rr=rr,
+                    type=record_type,
+                    value=value
+                )
+                client.update_domain_record_with_options(update_request, util_models.RuntimeOptions())
+                print(f"DNS记录 {rr}.{domain} 已更新")
+            else:  # 如果记录不存在
+                # 3. 创建新记录
+                add_request = alidns_20150109_models.AddDomainRecordRequest(
+                    domain_name=domain,
+                    rr=rr,
+                    type=record_type,
+                    value=value
+                )
+                client.add_domain_record_with_options(add_request, util_models.RuntimeOptions())
+                print(f"DNS记录 {rr}.{domain} 已创建")
+                
         except Exception as error:
-            # 此处仅做打印展示，请谨慎对待异常处理，在工程项目中切勿直接忽略异常。
-            # 错误 message
-            print(error.message)
-            # 诊断地址
+            # 错误处理
+            print(f"DNS记录操作失败: {error.message}")
             print(error.data.get("Recommend"))
             UtilClient.assert_as_string(error.message)
 
@@ -66,9 +93,8 @@ class Sample:
 if __name__ == '__main__':
     # 自动加载项目根目录下的 .env 文件
     load_dotenv(dotenv_path=env_file_path)
+    args = sys.argv[1:]
     # 写入日志文件
     with open(log_file_path, "a") as log_file:  # 使用追加模式
         log_file.write(" ".join(args) + "\n")  # 写入参数并换行
-    Sample.main(sys.argv[1:])
-
-
+    Sample.main(args)
